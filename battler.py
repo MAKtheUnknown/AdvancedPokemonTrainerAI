@@ -2,16 +2,54 @@
 import pandas as pd
 import pokemondata as pkd
 moves_list = pkd.moves()
+status_list = pkd.status_moves()
 pokemon_list = pkd.poke_list()
 type_matrix = pkd.poke_types()
 import random as rd
+import re
 
-preset_moves = {'Squirtle': ('Surf', 'Ice Beam', 'Growl', 'Quick Attack'),
-                'Charmander': ('Ember', 'Flamethrower', 'Dig', 'Leer'),
-                'Psyduck': ('Surf', 'Confusion', 'Bubble Beam', 'Hypnosis'),
-                'Pikachu': ('Thunder', 'Quick Attack', 'Thunderbolt', 'Body Slam'),
-                'Machamp': ('Low Kick', 'Submission', 'Pound', 'Leer'),
-                'Sandshrew': ('Dig', 'Earthquake', 'Hyper Fang', 'Slash')}
+preset_moves = {
+    'Weezing': ('Sludge', 'Zap Cannon', 'Selfdestruct', 'Haze'),
+    'Rhyhorn': ('Earthquake', 'Rollout', 'Iron Tail', 'Scary Face'),
+    'Rhydon': ('Dig', 'Stomp', 'Zap Cannon', 'Scary Face'),
+    'Chansey': ('Egg Bomb', 'Blizzard', 'Dream Eater', 'Sing'),
+    'Tangela': ('Giga Drain', 'Thief', 'Sleep Powder', 'Growth'),
+    'Kangaskhan': ('Dizzy Punch', 'Bite', 'Surf', 'Leer'),
+    'Horsea': ('Hydro Pump', 'Blizzard', 'Rain Dance', 'Smokescreen'),
+    'Seadra': ('Surf', 'Dragonbreath', 'Swift', 'Smokescreen'),
+    'Goldeen': ('Surf', 'Horn Attack', 'Horn Drill', 'Supersonic'),
+    'Seaking': ('Waterfall', 'Flail', 'Horn Drill', 'Supersonic'),
+    'Staryu': ('Psychic', 'Hydro Pump', 'Thunder', 'Recover'),
+    'Starmie': ('Waterfall', 'Zap Cannon', 'Rapid Spin', 'Harden'),
+    'Mr. Mime': ('Psybeam', 'Barrier', 'Baton Pass', 'Substitute'),
+    'Scyther': ('Wing Attack', 'Pursuit', 'Swift', 'Focus Energy'),
+    'Jynx': ('Ice Punch', 'Confusion', 'Lick', 'Mean Look'),
+    'Electabuzz': ('Thunderpunch', 'Swift', 'Light Screen', 'Leer'),
+    'Magmar': ('Fire Punch', 'Smog', 'Smokescreen', 'Confuse Ray'),
+    'Pinsir': ('Fury Cutter', 'Vicegrip', 'Submission', 'Focus Energy'),
+    'Tauros': ('Take Down', 'Pursuit', 'Rock Smash', 'Scary Face'),
+    'Magikarp': ('Tackle', 'Flail', 'Splash'), 
+    'Gyarados': ('Waterfall', 'Dragon Rage', 'Twister', 'Leer'),
+    'Lapras': ('Whirlpool', 'Icy Wind', 'Perish Song', 'Mist'),
+    'Ditto': (),
+    'Eevee': ('Take Down', 'Iron Tail', 'Shadow Ball' 'Sand-attack'),
+    'Vaporeon': ('Waterfall', 'Quick Attack', 'Acid Armor', 'Sand-attack'),
+    'Jolteon': ('Zap Cannon', 'Pin Missile', 'Double Kick', 'Sand-attack'),
+    'Flareon': ('Fire Blast', 'Smog', 'Quick Attack', 'Tail Whip'),
+    'Porygon': ('Tri Attack', 'Blizzard', 'Shrapen', 'Conversion 2'),
+    'Omanyte': ('Surf', 'Ancientpower', 'Blizzard', 'Protect'),
+    'Omastar': ('Water Gun', 'Ancientpower', 'Spike Cannon', 'Bite'),
+    'Kabuto': ('Rollout', 'Giga Drain', 'Blizzard', 'Attract'),
+    'Kabutops': ('Ancientpower', 'Surf', 'Leer', 'Endure'),
+    'Aerodactyl': ('Ancientpower', 'Bite', 'Curse', 'Supersonic'),
+    'Snorlax': ('Headbutt', 'Fire Punch', 'Defense Curl', 'Curse'),
+    'Articuno': ('Blizzard', 'Peck', 'Agility', 'Mist'),
+    'Zapdos': ('Thunder', 'Rock Smash', 'Flash', 'Detect'),
+    'Moltres': ('Fire Blast', 'Sky Attack', 'Roar', 'Endure'),
+    'Dratini': ('Outrage', 'Headbutt', 'Safeguard', 'Thunder Wave'),
+    'Dragonair': ('Outrage', 'Headbutt', 'Fire Blast', 'Thunder Wave'),
+    'Dragonite': ('Twister', 'Wing Attack', 'Dragon Rage', 'Leer'),
+    'Mew': ('Psychic', 'Ancientpower', 'Metronome', 'Flash')}
 pool = list(preset_moves.keys())
 
 class Pokemon:
@@ -32,6 +70,8 @@ class Pokemon:
         self.spdefe = pokemon_list[name]['Sp. Def']
         self.speed = pokemon_list[name]['Speed']
         self.faint = False
+        self.confused = False
+        self.status = ""
 
 class Trainer:
     def __init__(self, party1, party2, party3):
@@ -44,11 +84,44 @@ class Trainer:
     def swtich(self, new):
         self.active_pk = new
 
+def apply_status(attacker, defender, move):
+    text = status_list[move]['Effect']
+    
+    percent = 1.00
+
+    keyword_percent = re.search("\d+?%", text)
+    if (keyword_percent):
+        percent = float(keyword_percent.group().strip('%'))/100
+        
+        keyword_burn = re.search("burn", text)
+            if keyword_burn and rd.random() < percent and defender.status is "":
+                defender.status = "Burn"
+
+        keyword_freeze = re.search("freeze", text)
+            if keyword_freeze and rd.random() < percent and defender.status is "":
+                defender.status = "Freeze"
+
+        keyword_paralyze = re.search("paralyze", text)
+            if keyword_paralyze and rd.random() < percent and defender.status is "":
+                defender.status = "Paralyze"
+
+        keyword_poison = re.search("poison", text)
+            if keyword_poison and rd.random() < percent and defender.status is "":
+                defender.status = "Poison"
+        
+        keyword_flinch = re.search("flinch", text)
+            if keyword_flinch and rd.random() < percent and defender.status is "":
+                defender.status = "Flinch"
+        
+
+
 def attack(attacker, defender, move):
     power = moves_list[move]['Power']
     if power == 'None':
         power = 0
     dm = 0
+
+    apply_status(attacker, defender, move)
 
     #attack defense coefficient based on move category
     if moves_list[move]['Category'] == 'Physical':

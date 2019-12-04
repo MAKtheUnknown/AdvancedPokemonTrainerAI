@@ -3,6 +3,7 @@ import pandas as pd
 typedata = pd.read_excel('poketypes.xlsx')
 pokemon = pd.read_csv('pokemon.csv')
 moves = pd.read_csv('move-data.csv')
+status_moves = pd.read_csv('move-data-status.csv')
 
 moves = moves.loc[moves['Generation'].isin([1, 2])]
 
@@ -15,6 +16,14 @@ def moves():
         moves_dict[row['Name']] = {'Type': row['Type'],'Category': row['Category'],'PP': row['PP'],'Power': row['Power'],'Accuracy': row['Accuracy']}
     return moves_dict
 
+def status_moves():
+    m = []
+    for index, row in status_moves.iterrows():
+        m.append(row['Name'])
+    moves_dict = {}
+    for index, row in moves.iterrows():
+        moves_dict[row['Name']] = {'Effect': row['Effect']}
+    return moves_dict
 
 def poke_types():
     T = []
