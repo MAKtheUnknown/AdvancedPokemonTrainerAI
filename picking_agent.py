@@ -1,4 +1,5 @@
 #Christopher Kazakis, ck7aj
+#Michael A. Klaczynski, mak4em
 import pokemondata as pkd
 import torch
 import torch.nn as nn
