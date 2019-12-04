@@ -6,7 +6,7 @@ moves = pd.read_csv('move-data.csv')
 
 moves = moves.loc[moves['Generation'].isin([1, 2])]
 
-def moves():
+def get_moves():
     m = []
     for index, row in moves.iterrows():
         m.append(row['Name'])

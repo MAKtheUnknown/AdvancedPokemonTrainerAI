@@ -1,7 +1,7 @@
 #Christopher Kazakis, ck7aj
 import pandas as pd
 import pokemondata as pkd
-moves_list = pkd.moves()
+moves_list = pkd.get_moves()
 pokemon_list = pkd.poke_list()
 type_matrix = pkd.poke_types()
 import random as rd
@@ -23,6 +23,7 @@ class Pokemon:
         self.m2 = b
         self.m3 = c
         self.m4 = d
+        print(pokemon_list[name].keys)
         self.hp = pokemon_list[name]['HP']
         self.t1 = pokemon_list[name]['Type1']
         self.t2 = pokemon_list[name]['Type2']

@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import battler
 pokemon = pkd.poke_list()
 type_matrix = pkd.poke_types()
 
@@ -15,6 +16,7 @@ type_matrix = pkd.poke_types()
 
 typemap = ['Bug', 'Dragon', 'Electric', 'Fighting', 'Fire', 'Flying', 'Ghost', 'Grass', 'Ground', 'Ice', 'Normal', 'Poison', 'Psychic', 'Rock', 'Water']
 
+'''
 class AttackQLearningAgent():
 
     q = torch.tensor(28, 28, 20)
@@ -28,7 +30,7 @@ class AttackQLearningAgent():
         
         
 
-    def update_q():
+    #def update_q():
         
 
     def pick3(self, my_deck, opponents_deck):
@@ -55,15 +57,15 @@ def trainQ(n):
         ash.reward(results)
         misty.reward(-results)
   
-      
+'''   
     
-def DeepLearningAgent1(nn.Model):
+class DeepLearningAgent(nn.Module):
 
     def __init__(self):
-        super(Model, self).__init__()
+        super(DeepLearningAgent, self).__init__()
         self.lin1 = nn.Linear(72, 32)
-        self.lin2 = nn.Linear(32, 32)
-        self.lin3 = nn.Linear(32, 28)
+        self.lin2 = nn.Linear(32, 28)
+        self.lin3 = nn.Linear(28, 6)
 
     def forward(self, x):
         
@@ -74,7 +76,7 @@ def DeepLearningAgent1(nn.Model):
         
         return x
 
-    def choose3(self, my_pokes, their_pokes):
+    def input_to_tensot(self, my_pokes, their_pokes):
         x = torch.zeros(12, 5)
         for p in range(0, 6):
             poke = my_pokes[p]
@@ -92,35 +94,55 @@ def DeepLearningAgent1(nn.Model):
             x[p][3] = poke.atk
             x[p][4] = poke.defe
             x[p][5] = poke.speed
-        
+        return x
+
+    def tensor_to_picks(tensor, my_pool):
+        top3_vals = [0,0,0]
+        top3_i = [0,1,2]
+        top3 = []
+        for i in len(tensor):
+            if tensor[i] > min(top3_vals):
+                top3_vals[top3_vals.index(min(top3_vals))] = tensor[i]
+                top3_i[top3_vals.index(min(top3_vals))] = i
+        for i in top3_i:
+            top3.append(my_pool[i])
+        return top3
 
 
+criterion = nn.BCELoss()
 
-criterion = nn.CrossEntropyLoss()
-
-def trainDeep(n):
-    ash = DeepLearningAgent()
-    misty = DeepLearningAgent()
+ash = DeepLearningAgent()
+def train_deep(n):
     
     ash_optimizer = optim.SGD(ash.parameters(), lr=0.001, momentum=0.9)
-    misty_optimizer = optim.SGD(misty.parameters(), lr=0.001, momentum=0.9)
 
     for i in range(n):
-        ash_pool = battle.random_party(6)
-        misty_pool = battle.random_party(6)
+        pool1 = battle.random_party(6)
+        pool2 = battle.random_party(6)
         # I choose you!
 
-        ash_picks = ash.choose3(ash_pool, misty_pool)
-        misty_picks = misty.choose3(misty_pool, ash_pool)
+        vals1 = ash(ash.intput_to_tensor(pool1, pool2))
+        vals2 = ash(ash.intput_to_tensor(pool2, pool1))
         
-        results = battle.fight(ash_picks, misty_picks)
+        picks1 = ash.tensor_to_picks(vals1)
+        picks2 = ash.tensor_to_picks(vals2)
         
-    
+        results = battle.battle(battle.Trainer(picks1), battle.Trainer(picks2))
+        
+                
+        expected_state_action_values = alpha * reward_batch
+
         optimizer.zero_grad()
-        ash_loss = criterion(results, 1)
-        misty_loss = criterion(results, -1)
+
+        loss1 = criterion(results, 1)
+        loss2 = criterion(results, 0)
+
+        loss1.backward()
+        loss2.backward()
+        optimizer.step()
         
-    
+        
+train_deep(1)
 
 def optimal_pick():
     a, b, c, d, e, f = input("Pokemon:").split()
