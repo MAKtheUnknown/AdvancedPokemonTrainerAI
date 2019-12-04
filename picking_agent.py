@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import battler
+import random as rand #Let the Lord of Chaos rule!
 pokemon = pkd.poke_list()
 type_matrix = pkd.poke_types()
 
@@ -15,7 +16,7 @@ type_matrix = pkd.poke_types()
 #Charmander Clefairy Sandshrew Bulbasaur Pikachu Squirtle
 #Oddish Cubone Meowth Psyduck Magnemite Vulpix
 
-typemap = ['Bug', 'Dragon', 'Electric', 'Fighting', 'Fire', 'Flying', 'Ghost', 'Grass', 'Ground', 'Ice', 'Normal', 'Poison', 'Psychic', 'Rock', 'Water']
+typemap = ['Bug', 'Dragon', 'Electric', 'Fighting', 'Fire', 'Flying', 'Ghost', 'Grass', 'Ground', 'Ice', 'Normal', 'Poison', 'Psychic', 'Rock', 'Water', 'Fairy']
 
 '''
 class AttackQLearningAgent():
@@ -69,7 +70,6 @@ class DeepLearningAgent(nn.Module):
         self.lin3 = nn.Linear(28, 6)
 
     def forward(self, x):
-        
         x = torch.flatten(x)
         x = F.relu(self.lin1(x))
         x = F.relu(self.lin2(x))
@@ -77,31 +77,37 @@ class DeepLearningAgent(nn.Module):
         
         return x
 
-    def input_to_tensot(self, my_pokes, their_pokes):
-        x = torch.zeros(12, 5)
+    def input_to_tensor(self, my_pokes, their_pokes):
+        x = torch.zeros(12, 6)
         for p in range(0, 6):
             poke = my_pokes[p]
             x[p][0] = typemap.index(poke.t1)
-            x[p][1] = typemap.index(poke.t2)
-            x[p][2] = poke.hp
-            x[p][3] = poke.atk
-            x[p][4] = poke.defe
-            x[p][5] = poke.speed
+            try:
+                x[p][1] = typemap.index(poke.t2)
+            except (ValueError):
+                x[p][1] = 10
+            x[p][2] = poke.hp/100
+            x[p][3] = poke.atk/100
+            x[p][4] = poke.defe/100
+            x[p][5] = poke.speed/100
         for p in range(6, 12):
             poke = their_pokes[p-6]
             x[p][0] = typemap.index(poke.t1)
-            x[p][1] = typemap.index(poke.t2)
-            x[p][2] = poke.hp
-            x[p][3] = poke.atk
-            x[p][4] = poke.defe
-            x[p][5] = poke.speed
+            try:
+                x[p][1] = typemap.index(poke.t2)
+            except (ValueError):
+                x[p][1] = 10
+            x[p][2] = poke.hp/100
+            x[p][3] = poke.atk/100
+            x[p][4] = poke.defe/100
+            x[p][5] = poke.speed/100
         return x
 
-    def tensor_to_picks(tensor, my_pool):
+    def tensor_to_picks(self, tensor, my_pool):
         top3_vals = [0,0,0]
         top3_i = [0,1,2]
         top3 = []
-        for i in len(tensor):
+        for i in range(len(tensor)):
             if tensor[i] > min(top3_vals):
                 top3_vals[top3_vals.index(min(top3_vals))] = tensor[i]
                 top3_i[top3_vals.index(min(top3_vals))] = i
@@ -115,35 +121,53 @@ criterion = nn.BCELoss()
 ash = DeepLearningAgent()
 def train_deep(n):
     
-    ash_optimizer = optim.SGD(ash.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(ash.parameters(), lr=0.001, momentum=0.9)
 
     for i in range(n):
+        
+        #print(i)
+    
         pool1 = battler.random_party(6)
         pool2 = battler.random_party(6)
         # I choose you!
 
-        vals1 = ash(ash.intput_to_tensor(pool1, pool2))
-        vals2 = ash(ash.intput_to_tensor(pool2, pool1))
+        vals1 = ash(ash.input_to_tensor(pool1, pool2))
+        vals2 = ash(ash.input_to_tensor(pool2, pool1))
         
-        picks1 = ash.tensor_to_picks(vals1)
-        picks2 = ash.tensor_to_picks(vals2)
+        picks1 = ash.tensor_to_picks(vals1, pool1)
+        picks2 = ash.tensor_to_picks(vals2, pool2)
         
-        results = battler.battle(battle.Trainer(picks1), battle.Trainer(picks2))
-        
-                
-        expected_state_action_values = alpha * reward_batch
+        results = torch.tensor(float(battler.battle(battler.Trainer(picks1), battler.Trainer(picks2), battler.Type_Trainer, battler.Type_Trainer)))
+        results.requires_grad = True
 
         optimizer.zero_grad()
 
-        loss1 = criterion(results, 1)
-        loss2 = criterion(results, 0)
+        loss1 = criterion(results, torch.tensor([1.0]))
+        loss2 = criterion(results, torch.tensor([0.0]))
 
         loss1.backward()
         loss2.backward()
         optimizer.step()
+
+        if i%2000 == 0:
+            test_deep(50)
+    test_deep(500)
+
         
-        
-train_deep(1)
+def test_deep(n):
+    wins = 0
+    for i in range(n):
+        pool1 = battler.random_party(6)
+        pool2 = battler.random_party(6)
+        team_ash = ash.tensor_to_picks(ash(ash.input_to_tensor(pool1, pool2)), pool1)
+        team_rocket = pool2[:3]
+        results = torch.tensor(float(battler.battle(battler.Trainer(team_ash), battler.Trainer(team_rocket), battler.Type_Trainer, battler.Type_Trainer)))
+        if int(results+.5) == 1:
+            wins-=-1
+    print(wins/n*100)
+
+
+train_deep(20000)
 
 def optimal_pick():
     a, b, c, d, e, f = input("Pokemon:").split()
@@ -188,4 +212,4 @@ def optimal_counter():
     opponent = optimal_pick()
 
 
-print(optimal_pick())
+#print(optimal_pick())

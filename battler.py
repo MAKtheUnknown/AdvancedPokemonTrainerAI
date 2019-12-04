@@ -1,10 +1,10 @@
 #Christopher Kazakis, ck7aj
 import pandas as pd
 import pokemondata as pkd
-moves_list = pkd.moves()
+moves_list = pkd.get_moves()
 pokemon_list = pkd.poke_list()
 type_matrix = pkd.poke_types()
-#status_list = pkd.status_moves()
+#status_list = pkd.get_status_moves()
 import random as rd
 import re
 
@@ -238,7 +238,7 @@ class Trainer:
 
 
 def attack(attacker, defender, move):
-    print(move)
+    #print(move)
     power = moves_list[move]['Power']
     if power == 'None' or power is None:
         power = 0
@@ -257,6 +257,8 @@ def attack(attacker, defender, move):
         #print('DAMAGE CATEGORY ERROR')
 
     atk_t = moves_list[move]['Type']
+    if atk_t == 'Fighting': atk_t = 'Fight'
+    if defender.t1 == 'Fighting': defender.t1 = 'Fight'
 
     tmult = type_matrix[atk_t][defender.t1] # type multiplier
     try:
@@ -344,6 +346,9 @@ def type_agent(attacker, defender):
         else:
             pass
         atk_t = moves_list[i]['Type']
+        
+        if atk_t == 'Fighting': atk_t = 'Fight'
+        if defender.t1 == 'Fighting': defender.t1 = 'Fight'
 
         tmult = type_matrix[atk_t][defender.t1]  # type multiplier
         try:
@@ -462,11 +467,11 @@ def Type_Trainer(You, Opponent):
 
 def battle(You, Opponent, You_decision=random_Trainer, Opponent_decision=random_Trainer, Your_move_decision=random_move, Opponent_move_decision=random_move, turns=0):
     if turns > 50:
-        return 0
+        return .5
     if You.party_ct == 0:
-        return 0
+        return 0 - Opponent.party_ct/6+.5
     if Opponent.party_ct == 0:
-        return 1
+        return 0 + You.party_ct/6+.5
     if You.active_pk.faint:
         You.party_ct -= 1
         You.swap(0)
