@@ -118,8 +118,8 @@ def train_deep(n):
     ash_optimizer = optim.SGD(ash.parameters(), lr=0.001, momentum=0.9)
 
     for i in range(n):
-        pool1 = battle.random_party(6)
-        pool2 = battle.random_party(6)
+        pool1 = battler.random_party(6)
+        pool2 = battler.random_party(6)
         # I choose you!
 
         vals1 = ash(ash.intput_to_tensor(pool1, pool2))
@@ -128,7 +128,7 @@ def train_deep(n):
         picks1 = ash.tensor_to_picks(vals1)
         picks2 = ash.tensor_to_picks(vals2)
         
-        results = battle.battle(battle.Trainer(picks1), battle.Trainer(picks2))
+        results = battler.battle(battle.Trainer(picks1), battle.Trainer(picks2))
         
                 
         expected_state_action_values = alpha * reward_batch

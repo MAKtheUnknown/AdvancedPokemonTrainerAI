@@ -2,7 +2,7 @@
 import pandas as pd
 import pokemondata as pkd
 moves_list = pkd.get_moves()
-status_list = pkd.status_moves()
+status_list = pkd.get_status_moves()
 pokemon_list = pkd.poke_list()
 type_matrix = pkd.poke_types()
 import random as rd
@@ -37,11 +37,11 @@ preset_moves = {
     'Jolteon': ('Zap Cannon', 'Pin Missile', 'Double Kick', 'Sand-attack'),
     'Flareon': ('Fire Blast', 'Smog', 'Quick Attack', 'Tail Whip'),
     'Porygon': ('Tri Attack', 'Blizzard', 'Shrapen', 'Conversion 2'),
-    'Omanyte': ('Surf', 'Ancientpower', 'Blizzard', 'Protect'),
+    'Omanyte': ('Surf', 'Ancient Power', 'Blizzard', 'Protect'),
     'Omastar': ('Water Gun', 'Ancientpower', 'Spike Cannon', 'Bite'),
     'Kabuto': ('Rollout', 'Giga Drain', 'Blizzard', 'Attract'),
-    'Kabutops': ('Ancientpower', 'Surf', 'Leer', 'Endure'),
-    'Aerodactyl': ('Ancientpower', 'Bite', 'Curse', 'Supersonic'),
+    'Kabutops': ('Ancient Power', 'Surf', 'Leer', 'Endure'),
+    'Aerodactyl': ('Ancient Power', 'Bite', 'Curse', 'Supersonic'),
     'Snorlax': ('Headbutt', 'Fire Punch', 'Defense Curl', 'Curse'),
     'Articuno': ('Blizzard', 'Peck', 'Agility', 'Mist'),
     'Zapdos': ('Thunder', 'Rock Smash', 'Flash', 'Detect'),
@@ -49,7 +49,7 @@ preset_moves = {
     'Dratini': ('Outrage', 'Headbutt', 'Safeguard', 'Thunder Wave'),
     'Dragonair': ('Outrage', 'Headbutt', 'Fire Blast', 'Thunder Wave'),
     'Dragonite': ('Twister', 'Wing Attack', 'Dragon Rage', 'Leer'),
-    'Mew': ('Psychic', 'Ancientpower', 'Metronome', 'Flash')}
+    'Mew': ('Psychic', 'Ancient Power', 'Metronome', 'Flash')}
 pool = list(preset_moves.keys())
 
 class Pokemon:
@@ -95,24 +95,24 @@ def apply_status(attacker, defender, move):
         percent = float(keyword_percent.group().strip('%'))/100
         
         keyword_burn = re.search("burn", text)
-            if keyword_burn and rd.random() < percent and defender.status is "":
-                defender.status = "Burn"
+        if keyword_burn and rd.random() < percent and defender.status is "":
+            defender.status = "Burn"
 
         keyword_freeze = re.search("freeze", text)
-            if keyword_freeze and rd.random() < percent and defender.status is "":
-                defender.status = "Freeze"
+        if keyword_freeze and rd.random() < percent and defender.status is "":
+            defender.status = "Freeze"
 
         keyword_paralyze = re.search("paralyze", text)
-            if keyword_paralyze and rd.random() < percent and defender.status is "":
-                defender.status = "Paralyze"
+        if keyword_paralyze and rd.random() < percent and defender.status is "":
+            defender.status = "Paralyze"
 
         keyword_poison = re.search("poison", text)
-            if keyword_poison and rd.random() < percent and defender.status is "":
-                defender.status = "Poison"
+        if keyword_poison and rd.random() < percent and defender.status is "":
+            defender.status = "Poison"
         
         keyword_flinch = re.search("flinch", text)
-            if keyword_flinch and rd.random() < percent and defender.status is "":
-                defender.status = "Flinch"
+        if keyword_flinch and rd.random() < percent and defender.status is "":
+            defender.status = "Flinch"
         
 
 
