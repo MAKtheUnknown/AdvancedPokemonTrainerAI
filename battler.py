@@ -38,7 +38,7 @@ preset_moves = {
     'Flareon': ('Fire Blast', 'Smog', 'Quick Attack', 'Tail Whip'),
     'Porygon': ('Tri Attack', 'Blizzard', 'Shrapen', 'Conversion 2'),
     'Omanyte': ('Surf', 'Ancient Power', 'Blizzard', 'Protect'),
-    'Omastar': ('Water Gun', 'Ancientpower', 'Spike Cannon', 'Bite'),
+    'Omastar': ('Water Gun', 'Ancient Power', 'Spike Cannon', 'Bite'),
     'Kabuto': ('Rollout', 'Giga Drain', 'Blizzard', 'Attract'),
     'Kabutops': ('Ancient Power', 'Surf', 'Leer', 'Endure'),
     'Aerodactyl': ('Ancient Power', 'Bite', 'Curse', 'Supersonic'),
@@ -232,4 +232,4 @@ def versusone(pa, pb, a_decsion=random_move, b_decision=random_move):
 def Trainer_battle():
     pass
 
-print(versusone(random_pokemon(), random_pokemon(), a_decsion=type_agent))
+#print(versusone(random_pokemon(), random_pokemon(), a_decsion=type_agent))
