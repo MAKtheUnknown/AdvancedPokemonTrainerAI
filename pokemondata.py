@@ -2,28 +2,19 @@
 import pandas as pd
 typedata = pd.read_excel('poketypes.xlsx')
 pokemon = pd.read_csv('pokemon.csv')
-moves = pd.read_csv('move-data.csv')
-status_moves = pd.read_csv('move-data-status.csv')
+mv = pd.read_csv('move-data.csv')
 
-moves = moves.loc[moves['Generation'].isin([1, 2])]
+mv = mv.loc[mv['Generation'].isin([1, 2])]
 
 def moves():
     m = []
-    for index, row in moves.iterrows():
+    for index, row in mv.iterrows():
         m.append(row['Name'])
     moves_dict = {}
-    for index, row in moves.iterrows():
+    for index, row in mv.iterrows():
         moves_dict[row['Name']] = {'Type': row['Type'],'Category': row['Category'],'PP': row['PP'],'Power': row['Power'],'Accuracy': row['Accuracy']}
     return moves_dict
 
-def status_moves():
-    m = []
-    for index, row in status_moves.iterrows():
-        m.append(row['Name'])
-    moves_dict = {}
-    for index, row in moves.iterrows():
-        moves_dict[row['Name']] = {'Effect': row['Effect']}
-    return moves_dict
 
 def poke_types():
     T = []
@@ -37,9 +28,5 @@ def poke_types():
 def poke_list():
     pokemon_dict = {}
     for index, row in pokemon.iterrows():
-        pokemon_dict[row['Name']] = {'Type1': row['Type1'], 'Type2': row['Type2'], 'Attack': row['Attack'], 'Defense': row['Defense'], 'Sp. Atk': row['Sp. Atk'], 'Sp. Def': row['Sp. Def'], 'Speed': row['Speed']}
+        pokemon_dict[row['Name']] = {'Type1': row['Type1'], 'Type2': row['Type2'], 'HP': row['HP'], 'Attack': row['Attack'], 'Defense': row['Defense'], 'Sp. Atk': row['Sp. Atk'], 'Sp. Def': row['Sp. Def'], 'Speed': row['Speed']}
     return pokemon_dict
-
-
-e = poke_types()
-
