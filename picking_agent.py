@@ -65,42 +65,46 @@ class DeepLearningAgent(nn.Module):
 
     def __init__(self):
         super(DeepLearningAgent, self).__init__()
-        self.lin1 = nn.Linear(72, 32)
-        self.lin2 = nn.Linear(32, 28)
-        self.lin3 = nn.Linear(28, 6)
+        self.lin1 = nn.Linear(240, 120)
+        self.lin2 = nn.Linear(120, 72)
+        self.lin3 = nn.Linear(72, 64)
+        self.lin4 = nn.Linear(64, 32)
+        self.lin5 = nn.Linear(32, 6)
 
     def forward(self, x):
         x = torch.flatten(x)
-        x = F.relu(self.lin1(x))
-        x = F.relu(self.lin2(x))
-        x = self.lin3(x)
+        x = F.softmax(self.lin1(x))
+        x = F.softmax(self.lin2(x))
+        x = F.softmax(self.lin3(x))
+        x = F.softmax(self.lin4(x))
+        x = F.softmax(self.lin5(x))
         
         return x
 
     def input_to_tensor(self, my_pokes, their_pokes):
-        x = torch.zeros(12, 6)
+        x = torch.zeros(12, 20)
         for p in range(0, 6):
             poke = my_pokes[p]
-            x[p][0] = typemap.index(poke.t1)
+            x[p][typemap.index(poke.t1)] = 1.0
             try:
-                x[p][1] = typemap.index(poke.t2)
+                x[p][typemap.index(poke.t2)] = 1.0
             except (ValueError):
-                x[p][1] = 10
-            x[p][2] = poke.hp/100
-            x[p][3] = poke.atk/100
-            x[p][4] = poke.defe/100
-            x[p][5] = poke.speed/100
+                x[p][10] = 1.0
+            x[p][16] = poke.hp/100
+            x[p][17] = poke.atk/100
+            x[p][18] = poke.defe/100
+            x[p][19] = poke.speed/100
         for p in range(6, 12):
             poke = their_pokes[p-6]
-            x[p][0] = typemap.index(poke.t1)
+            x[p][typemap.index(poke.t1)] = 1.0
             try:
-                x[p][1] = typemap.index(poke.t2)
+                x[p][typemap.index(poke.t2)] = 1.0
             except (ValueError):
-                x[p][1] = 10
-            x[p][2] = poke.hp/100
-            x[p][3] = poke.atk/100
-            x[p][4] = poke.defe/100
-            x[p][5] = poke.speed/100
+                x[p][10] = 1.0
+            x[p][16] = poke.hp/100
+            x[p][17] = poke.atk/100
+            x[p][18] = poke.defe/100
+            x[p][19] = poke.speed/100
         return x
 
     def tensor_to_picks(self, tensor, my_pool):
@@ -137,7 +141,7 @@ def train_deep(n):
         picks1 = ash.tensor_to_picks(vals1, pool1)
         picks2 = ash.tensor_to_picks(vals2, pool2)
         
-        results = torch.tensor(float(battler.battle(battler.Trainer(picks1), battler.Trainer(picks2), battler.Type_Trainer, battler.Type_Trainer)))
+        results = torch.tensor(float(battler.battle(battler.Trainer(picks1), battler.Trainer(picks2), battler.Type_Trainer, battler.Type_Trainer, battler.type_agent, battler.type_agent)))
         results.requires_grad = True
 
         optimizer.zero_grad()
@@ -149,7 +153,7 @@ def train_deep(n):
         loss2.backward()
         optimizer.step()
 
-        if i%2000 == 0:
+        if i%20000 == 0:
             test_deep(50)
     test_deep(500)
 
@@ -161,13 +165,13 @@ def test_deep(n):
         pool2 = battler.random_party(6)
         team_ash = ash.tensor_to_picks(ash(ash.input_to_tensor(pool1, pool2)), pool1)
         team_rocket = pool2[:3]
-        results = torch.tensor(float(battler.battle(battler.Trainer(team_ash), battler.Trainer(team_rocket), battler.Type_Trainer, battler.Type_Trainer)))
+        results = torch.tensor(float(battler.battle(battler.Trainer(team_ash), battler.Trainer(team_rocket), battler.Type_Trainer, battler.random_Trainer, battler.type_agent, battler.type_agent)))
         if int(results+.5) == 1:
             wins-=-1
     print(wins/n*100)
 
 
-train_deep(20000)
+train_deep(200000)
 
 def optimal_pick():
     a, b, c, d, e, f = input("Pokemon:").split()
