@@ -37,7 +37,7 @@ def poke_types():
 def poke_list():
     pokemon_dict = {}
     for index, row in pokemon.iterrows():
-        pokemon_dict[row['Name']] = {'Type1': row['Type1'], 'Type2': row['Type2'], 'Attack': row['Attack'], 'Defense': row['Defense'], 'Sp. Atk': row['Sp. Atk'], 'Sp. Def': row['Sp. Def'], 'Speed': row['Speed']}
+        pokemon_dict[row['Name']] = {'Type1': row['Type1'], 'Type2': row['Type2'], 'HP': row['HP'], 'Attack': row['Attack'], 'Defense': row['Defense'], 'Sp. Atk': row['Sp. Atk'], 'Sp. Def': row['Sp. Def'], 'Speed': row['Speed']}
     return pokemon_dict
 
 
