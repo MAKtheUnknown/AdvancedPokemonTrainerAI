@@ -40,9 +40,22 @@ class Trainer:
         self.party3 = party3
         self.defeated = False
         self.active_pk = party1
+        self.reserve = [party2, party3]
+        self.party_ct = 3
 
-    def swtich(self, new):
-        self.active_pk = new
+    def swap(self, idx):
+        if self.party_ct > 0:
+            placeholder = self.active_pk
+            self.active_pk = self.reserve[idx]
+            self.reserve[idx] = placeholder
+            if self.active_pk.faint:
+                if idx == 0:
+                    self.active_pk = self.reserve[idx+1]
+                else:
+                    self.active_pk = self.reserve[idx-1]
+        else:
+            self.defeated = True
+
 
 def attack(attacker, defender, move):
     power = moves_list[move]['Power']
@@ -103,6 +116,20 @@ def attack(attacker, defender, move):
 def random_pokemon(): # returns a random pokemon
     return Pokemon(rd.choice(pool))
 
+def random_party(n):
+    k = n
+    party = []
+    names = []
+    while k > 0:
+        p = Pokemon(rd.choice(pool))
+        if p.name not in names:
+            names.append(p.name)
+            party.append(p)
+            k -= 1
+    party.sort(key=lambda x: x.name)
+
+    return party
+
 def random_move(attacker, defender):
     choose = rd.random()
     if choose < .25:
@@ -155,7 +182,53 @@ def versusone(pa, pb, a_decsion=random_move, b_decision=random_move):
         attack(pa, pb, random_move(pa, pb))
     return versusone(pa, pb)
 
-def Trainer_battle():
+
+def battle_step(pa, pb, a_decsion=random_move, b_decision=random_move, just_swapped_a=False, just_swapped_b=True):
+    if pa.faint:
+        print(pa.name + ' fainted!')
+        return 0
+    if pb.faint:
+        print(pa.name + ' fainted!')
+        return 1
+    if pa.speed > pb.speed:
+        attack(pa, pb, a_decsion(pa, pb))
+        attack(pb, pa, b_decision(pb, pa))
+    else:
+        attack(pb, pa, random_move(pb, pa))
+        attack(pa, pb, random_move(pa, pb))
+
+def random_Trainer(You, Opponent):
+    current = You.active_pk
+    reserve = You.reserve
+
+    if rd.random() > .1:
+        if rd.rand() > .5:
+            return 0
+        else:
+            return 1
     pass
 
-print(versusone(random_pokemon(), random_pokemon(), a_decsion=type_agent))
+
+def battle(You, Opponent, You_decision, Opponent_decision):
+    Y = False
+    O = False
+    if You.active_pk.faint:
+        You.party_ct -= 1
+        alternate_1 = You_decision(You, Opponent)
+        You
+        Y = True
+    if Opponent.active_pk.faint:
+        Opponent.party_ct -= 1
+        alternate_2 = Opponent_decision(Opponent, You)
+        O = True
+    if Y:
+        You.swap(alternate_1)
+    if O:
+        You.swap(alternate_2)
+
+
+
+#k = random_party(4)
+#for i in k:
+#    print(i.name)
+
